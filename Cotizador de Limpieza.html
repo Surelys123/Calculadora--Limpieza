@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cotizador de Limpieza</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17332e;background:#f1f7f5}*{box-sizing:border-box}body{margin:0;padding:22px 14px}.app{max-width:560px;margin:20px auto;background:white;border-radius:24px;padding:28px;box-shadow:0 12px 40px #174a3a18}header{display:flex;gap:12px;align-items:center;margin-bottom:22px}.logo{font-size:32px;background:#d9f6e9;padding:12px;border-radius:15px}h1{font-size:25px;margin:0}p{color:#61756f;margin:6px 0}label{display:block;font-weight:650;margin:18px 0 7px}input,select{width:100%;padding:13px;border:1px solid #c9dcd5;border-radius:11px;font:inherit;background:#fff}input:focus,select:focus{outline:2px solid #13876a}fieldset{border:0;padding:0;margin:16px 0}legend{font-weight:650;margin-bottom:8px}.check{display:flex;align-items:center;gap:10px;font-weight:450;margin:9px 0}.check input{width:auto;accent-color:#087e62}.total{background:#e9f8f1;text-align:center;border-radius:18px;padding:22px;margin:22px 0 15px}.total small{color:#476b5e}.total strong{font-size:42px;display:block;color:#086c51}button{width:100%;border:0;background:#087e62;color:white;border-radius:12px;padding:15px;font:inherit;font-weight:700;cursor:pointer;margin:6px 0}button.secondary{background:#e3f2ec;color:#096c53}.note{font-size:12px;line-height:1.5;text-align:center}#notice{font-size:14px;color:#096c53;text-align:center;min-height:20px}
+</style>
+</head>
+<body><main class="app"><header><div class="logo">🧼</div><div><h1>Cotizador de Limpieza</h1><p>Calcula un presupuesto en segundos</p></div></header>
+<label for="rooms">Número de habitaciones</label><input id="rooms" type="number" min="0" max="30" value="3" inputmode="numeric">
+<label for="baths">Número de baños</label><input id="baths" type="number" min="0" max="30" value="2" inputmode="numeric">
+<label for="type">Tipo de limpieza</label><select id="type"><option value="regular">Regular</option><option value="profunda">Profunda (+$80)</option></select>
+<fieldset><legend>Servicios adicionales</legend><label class="check"><input type="checkbox" id="fridge"> Interior del refrigerador (+$25)</label><label class="check"><input type="checkbox" id="oven"> Interior del horno (+$30)</label><label class="check"><input type="checkbox" id="windows"> Ventanas interiores (+$35)</label></fieldset>
+<div class="total"><small>Presupuesto estimado</small><strong id="price" aria-live="polite">$145.00</strong></div>
+<button id="copy">📋 Copiar presupuesto</button><button class="secondary" id="reset">Limpiar formulario</button><p id="notice" role="status"></p><p class="note">Precios de ejemplo: base $60 + $15 por habitación + $20 por baño. Modifícalos según el negocio. El precio final puede variar según tamaño, estado y ubicación del inmueble.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fields=['rooms','baths','type','fridge','oven','windows'];
+const number=id=>Math.max(0,Math.min(30,Number($(id).value)||0));
+function quote(){const rooms=number('rooms'),baths=number('baths');const extras=($('fridge').checked?25:0)+($('oven').checked?30:0)+($('windows').checked?35:0);const total=60+rooms*15+baths*20+($('type').value==='profunda'?80:0)+extras;$('price').textContent=total.toLocaleString('en-US',{style:'currency',currency:'USD'});return `PRESUPUESTO DE LIMPIEZA\nHabitaciones: ${rooms}\nBaños: ${baths}\nTipo: ${$('type').value==='profunda'?'Profunda':'Regular'}\nRefrigerador: ${$('fridge').checked?'Sí':'No'}\nHorno: ${$('oven').checked?'Sí':'No'}\nVentanas: ${$('windows').checked?'Sí':'No'}\nTotal estimado: ${$('price').textContent}\nSujeto a confirmación.`;}
+fields.forEach(id=>$(id).addEventListener('input',()=>{quote();$('notice').textContent='';}));
+$('copy').addEventListener('click',async()=>{const value=quote();try{await navigator.clipboard.writeText(value);$('notice').textContent='Presupuesto copiado.';}catch{const t=document.createElement('textarea');t.value=value;document.body.append(t);t.select();const ok=document.execCommand('copy');t.remove();$('notice').textContent=ok?'Presupuesto copiado.':'No se pudo copiar. Inténtalo desde otro navegador.';}});
+$('reset').addEventListener('click',()=>{$('rooms').value=3;$('baths').value=2;$('type').value='regular';['fridge','oven','windows'].forEach(id=>$(id).checked=false);quote();$('notice').textContent='Formulario reiniciado.';});quote();
+</script></body></html>
